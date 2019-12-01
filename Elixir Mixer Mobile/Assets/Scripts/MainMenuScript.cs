@@ -15,4 +15,59 @@ public class MainMenuScript : MonoBehaviour
     {
         
     }
+
+    void Settings()
+    {
+
+    }
+
+    void SelectLevel()
+    {
+
+    }
+
+    void Exit()
+    {
+
+    }
+
+    void Tutorial()
+    {
+
+    }
+
+    void LevelSelect()
+    {
+
+    }
+
+    void VolumeSlider()
+    {
+
+    }
+
+    void ToggleHigh()
+    {
+
+    }
+
+    void ToggleMedium()
+    {
+
+    }
+
+    void ToggleLow()
+    {
+
+    }
+
+    void SaveAndExit()
+    {
+
+    }
+
+    void BackToMenu()
+    {
+
+    }
 }
