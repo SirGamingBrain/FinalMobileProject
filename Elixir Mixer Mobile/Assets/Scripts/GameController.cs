@@ -91,6 +91,8 @@ public class GameController : MonoBehaviour
                 break;
         }
 
+        Debug.Log("Day Number " + PlayerPrefs.GetString("Day Number"));
+
         //Once the intro is complete, the day will begin.
         timerOn = true;
         StartCoroutine(CustomerSpawning());
