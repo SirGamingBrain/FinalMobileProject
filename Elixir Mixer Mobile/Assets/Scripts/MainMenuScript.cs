@@ -224,6 +224,7 @@ public class MainMenuScript : MonoBehaviour
     public void LevelLoad(Button button)
     {
         //Load the Passed Level
+        PlayerPrefs.SetString("Day Number", button.GetComponentInChildren<TextMeshProUGUI>().text);
     }
 
     public void VolumeSlider(Slider slider)
