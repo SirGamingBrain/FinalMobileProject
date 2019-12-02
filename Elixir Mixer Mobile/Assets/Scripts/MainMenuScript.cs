@@ -1,6 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using TMPro;
 
 public class MainMenuScript : MonoBehaviour
 {
@@ -8,15 +11,180 @@ public class MainMenuScript : MonoBehaviour
     GameObject settingsPage;
     GameObject levelPage;
 
+    Button day1;
+    Button day2;
+    Button day3;
+    Button day4;
+    Button day5;
+    Button day6;
 
+    Toggle low;
+    Toggle medium;
+    Toggle high;
+
+    TextMeshProUGUI volumeText;
+
+    Slider master;
+
+    private void Awake()
+    {
+        //Handle Setting Audio and Quality here as well.
+        if (!PlayerPrefs.HasKey("Master Volume"))
+        {
+            PlayerPrefs.SetFloat("Master Volume", 100f);
+        }
+
+        if (!PlayerPrefs.HasKey("Quality"))
+        {
+            PlayerPrefs.SetInt("Quality", 2);
+            QualitySettings.SetQualityLevel(2, true);
+        }
+        else
+        {
+            QualitySettings.SetQualityLevel(PlayerPrefs.GetInt("Quality"), true);
+        }
+
+        if (!PlayerPrefs.HasKey("Days Beaten"))
+        {
+            PlayerPrefs.SetInt("Days Beaten", 0);
+        }
+    }
 
     // Start is called before the first frame update
     void Start()
     {
+        //Find all of our menu variables and set them.
         mainPage = GameObject.Find("Main Panel");
         settingsPage = GameObject.Find("Settings");
         levelPage = GameObject.Find("Level Select");
 
+        day1 = GameObject.Find("Day 1").GetComponent<Button>();
+        day2 = GameObject.Find("Day 2").GetComponent<Button>();
+        day3 = GameObject.Find("Day 3").GetComponent<Button>();
+        day4 = GameObject.Find("Day 4").GetComponent<Button>();
+        day5 = GameObject.Find("Day 5").GetComponent<Button>();
+        day6 = GameObject.Find("Day 6").GetComponent<Button>();
+
+        low = GameObject.Find("Low Quality Toggle").GetComponent<Toggle>();
+        medium = GameObject.Find("Medium Quality Toggle").GetComponent<Toggle>();
+        high = GameObject.Find("High Quality Toggle").GetComponent<Toggle>();
+
+        master = GameObject.Find("Volume Slider").GetComponent<Slider>();
+        volumeText = GameObject.Find("Volume Value").GetComponent<TextMeshProUGUI>();
+
+        //Handle Locking Level Select Buttons, Toggling Qualities, and Volume Slider here.
+        Debug.Log("Days Beaten: " + PlayerPrefs.GetInt("Days Beaten").ToString() + ", Quality Index: " + PlayerPrefs.GetInt("Quality").ToString() + ", Current Volume: " + PlayerPrefs.GetFloat("Master Volume").ToString() + ".");
+
+        switch (PlayerPrefs.GetInt("Days Beaten"))
+        {
+            case 0:
+                day2.enabled = false;
+                day2.GetComponentInChildren<TextMeshProUGUI>().text = "Locked";
+                day3.enabled = false;
+                day3.GetComponentInChildren<TextMeshProUGUI>().text = "Locked";
+                day4.enabled = false;
+                day4.GetComponentInChildren<TextMeshProUGUI>().text = "Locked";
+                day5.enabled = false;
+                day5.GetComponentInChildren<TextMeshProUGUI>().text = "Locked";
+                day6.enabled = false;
+                day6.GetComponentInChildren<TextMeshProUGUI>().text = "Locked";
+                break;
+            case 1:
+                day2.enabled = true;
+                day2.GetComponentInChildren<TextMeshProUGUI>().text = "Day 2";
+                day3.enabled = false;
+                day3.GetComponentInChildren<TextMeshProUGUI>().text = "Locked";
+                day4.enabled = false;
+                day4.GetComponentInChildren<TextMeshProUGUI>().text = "Locked";
+                day5.enabled = false;
+                day5.GetComponentInChildren<TextMeshProUGUI>().text = "Locked";
+                day6.enabled = false;
+                day6.GetComponentInChildren<TextMeshProUGUI>().text = "Locked";
+                break;
+            case 2:
+                day2.enabled = true;
+                day2.GetComponentInChildren<TextMeshProUGUI>().text = "Day 2";
+                day3.enabled = true;
+                day3.GetComponentInChildren<TextMeshProUGUI>().text = "Day 3";
+                day4.enabled = false;
+                day4.GetComponentInChildren<TextMeshProUGUI>().text = "Locked";
+                day5.enabled = false;
+                day5.GetComponentInChildren<TextMeshProUGUI>().text = "Locked";
+                day6.enabled = false;
+                day6.GetComponentInChildren<TextMeshProUGUI>().text = "Locked";
+                break;
+            case 3:
+                day2.enabled = true;
+                day2.GetComponentInChildren<TextMeshProUGUI>().text = "Day 2";
+                day3.enabled = true;
+                day3.GetComponentInChildren<TextMeshProUGUI>().text = "Day 3";
+                day4.enabled = true;
+                day4.GetComponentInChildren<TextMeshProUGUI>().text = "Day 4";
+                day5.enabled = false;
+                day5.GetComponentInChildren<TextMeshProUGUI>().text = "Locked";
+                day6.enabled = false;
+                day6.GetComponentInChildren<TextMeshProUGUI>().text = "Locked";
+                break;
+            case 4:
+                day2.enabled = true;
+                day2.GetComponentInChildren<TextMeshProUGUI>().text = "Day 2";
+                day3.enabled = true;
+                day3.GetComponentInChildren<TextMeshProUGUI>().text = "Day 3";
+                day4.enabled = true;
+                day4.GetComponentInChildren<TextMeshProUGUI>().text = "Day 4";
+                day5.enabled = true;
+                day5.GetComponentInChildren<TextMeshProUGUI>().text = "Day 5";
+                day6.enabled = false;
+                day6.GetComponentInChildren<TextMeshProUGUI>().text = "Locked";
+                break;
+            case 5:
+                day2.enabled = true;
+                day2.GetComponentInChildren<TextMeshProUGUI>().text = "Day 2";
+                day3.enabled = true;
+                day3.GetComponentInChildren<TextMeshProUGUI>().text = "Day 3";
+                day4.enabled = true;
+                day4.GetComponentInChildren<TextMeshProUGUI>().text = "Day 4";
+                day5.enabled = true;
+                day5.GetComponentInChildren<TextMeshProUGUI>().text = "Day 5";
+                day6.enabled = true;
+                day6.GetComponentInChildren<TextMeshProUGUI>().text = "Day 6";
+                break;
+            default:
+                day2.enabled = false;
+                day2.GetComponentInChildren<TextMeshProUGUI>().text = "Locked";
+                day3.enabled = false;
+                day3.GetComponentInChildren<TextMeshProUGUI>().text = "Locked";
+                day4.enabled = false;
+                day4.GetComponentInChildren<TextMeshProUGUI>().text = "Locked";
+                day5.enabled = false;
+                day5.GetComponentInChildren<TextMeshProUGUI>().text = "Locked";
+                day6.enabled = false;
+                day6.GetComponentInChildren<TextMeshProUGUI>().text = "Locked";
+                break;
+        }
+
+        switch (PlayerPrefs.GetInt("Quality"))
+        {
+            case 0:
+                low.isOn = true;
+                break;
+            case 1:
+                medium.isOn = true;
+                break;
+            case 2:
+                high.isOn = true;
+                break;
+            default:
+                high.isOn = true;
+                break;
+        }
+
+        master.value = PlayerPrefs.GetFloat("Master Volume");
+        volumeText.text = PlayerPrefs.GetFloat("Master Volume").ToString();
+
+        //Handle Anything Else Here.
+
+        //Then hide everything that needs to be hidden.
         mainPage.SetActive(true);
         settingsPage.SetActive(false);
         levelPage.SetActive(false);
@@ -28,68 +196,78 @@ public class MainMenuScript : MonoBehaviour
         
     }
 
-    void Settings()
+    public void Settings()
     {
         mainPage.SetActive(false);
         settingsPage.SetActive(true);
         levelPage.SetActive(false);
     }
 
-    void SelectLevel()
+    public void SelectLevel()
     {
         mainPage.SetActive(false);
         settingsPage.SetActive(false);
         levelPage.SetActive(true);
     }
 
-    void Exit()
+    public void Exit()
     {
         PlayerPrefs.Save();
         Application.Quit();
     }
 
-    void Tutorial()
+    public void Tutorial()
     {
         //Load the Tutorial
     }
 
-    void LevelLoad()
+    public void LevelLoad(Button button)
     {
         //Load the Passed Level
     }
 
-    void VolumeSlider()
+    public void VolumeSlider(Slider slider)
     {
-        //Change the Volume (This might have to be moved to the audio manager script)
+        PlayerPrefs.SetFloat("Master Volume", slider.value);
+        volumeText.text = slider.value.ToString();
+        FindObjectOfType<AudioScript>().VolumeChange();
     }
 
-    void ToggleHigh()
+    public void ToggleHigh()
     {
-        //Set High Quality
+        PlayerPrefs.SetInt("Quality", 2);
+        QualitySettings.SetQualityLevel(PlayerPrefs.GetInt("Quality"), true);
     }
 
-    void ToggleMedium()
+    public void ToggleMedium()
     {
-        //Set Medium Quality
+        PlayerPrefs.SetInt("Quality", 1);
+        QualitySettings.SetQualityLevel(PlayerPrefs.GetInt("Quality"), true);
     }
 
-    void ToggleLow()
+    public void ToggleLow()
     {
-        //Set Low Quality
+        PlayerPrefs.SetInt("Quality", 0);
+        QualitySettings.SetQualityLevel(PlayerPrefs.GetInt("Quality"), true);
     }
 
-    void SaveAndExit()
+    public void SaveAndExit()
     {
-        //Save Settings and Open Main Menu
+        PlayerPrefs.Save();
         mainPage.SetActive(true);
         settingsPage.SetActive(false);
         levelPage.SetActive(false);
     }
 
-    void BackToMenu()
+    public void BackToMenu()
     {
         mainPage.SetActive(true);
         settingsPage.SetActive(false);
         levelPage.SetActive(false);
+    }
+    
+    public void OnTouch()
+    {
+        FindObjectOfType<AudioScript>().Play("Click");
     }
 }
