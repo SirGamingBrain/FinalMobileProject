@@ -22,10 +22,19 @@ public class GameController : MonoBehaviour
 
     float levelTimer = 300;
 
-    int minimumScore = 50;
+    int currentCash = 0;
+    int minimumCash = 50;
+    int maxPotionIndex = 8;
 
     bool timerOn = false;
     bool dayFinished = false;
+
+    bool[] customersWaiting = new bool[6] {false, false, false, false, false, false};
+    public GameObject[] customers = new GameObject [5];
+    public GameObject[] potionOrders = new GameObject[8];
+    public Transform[] spawnpoint = new Transform[6];
+    public Transform[] orderHolder = new Transform[6];
+    //public Transform[] waitingPoint = new Transform[5];
 
     // Start is called before the first frame update
     void Start()
@@ -50,29 +59,41 @@ public class GameController : MonoBehaviour
                 undeadCrate.SetActive(false);
                 blackeyedCrate.SetActive(false);
                 magicCrate.SetActive(false);
+                maxPotionIndex = 2;
+                minimumCash = 50;
                 break;
             case "Day 2":
                 blackeyedCrate.SetActive(false);
                 magicCrate.SetActive(false);
+                maxPotionIndex = 4;
+                minimumCash = 60;
                 break;
             case "Day 3":
                 magicCrate.SetActive(false);
+                maxPotionIndex = 5;
+                minimumCash = 70;
                 break;
             case "Day 4":
                 magicCrate.SetActive(false);
+                maxPotionIndex = 6;
+                minimumCash = 80;
                 break;
             case "Day 5":
                 magicCrate.SetActive(false);
+                maxPotionIndex = 7;
+                minimumCash = 90;
                 break;
             case "Day 6":
+                maxPotionIndex = 8;
+                minimumCash = 100;
                 break;
             default:
                 break;
         }
 
-        timerOn = true;
-
         //Once the intro is complete, the day will begin.
+        timerOn = true;
+        StartCoroutine(CustomerSpawning());
     }
 
     // Update is called once per frame
@@ -177,6 +198,83 @@ public class GameController : MonoBehaviour
         {
             //Call a function to display the finishing stats to the player.
             //This will provide the player with knowing if they met the goal or not, and access to letting them retry if they failed.
+        }
+    }
+
+    void SpawnNewCustomer()
+    {
+        int i = Random.Range(0, 4); //Choose a random customer prefab.
+        int j = Random.Range(0, 5); //Choose a random waiting spot.
+        int k = Random.Range(0, maxPotionIndex); //Choose a random order based on the day.
+
+        //Check to see if that spot is being used, if it is we need to find one that isn't being used currently.
+        if (customersWaiting[j])
+        {
+            bool empty = false;
+
+            while (empty == false)
+            {
+                if (j < 5)
+                {
+                    j++;
+                }
+                else
+                {
+                    j = 0;
+                }
+
+                if (!customersWaiting[j])
+                {
+                    empty = true;
+                }
+            }
+        }
+
+        Debug.Log("Customer #" + i + ", in line " + j + " ordering potion number: " + k + ".");
+        //Spawn the order and the customer in and begin timing them.
+        customersWaiting[j] = true;
+        Instantiate(customers[i], spawnpoint[j].position, spawnpoint[j].rotation);
+        Instantiate(potionOrders[k], orderHolder[j].position, orderHolder[j].rotation, orderHolder[j]);
+    }
+
+    public void FailedOrder(int waitingSpot)
+    {
+        //Clear the customer and the order and don't give the player anything.
+        customersWaiting[waitingSpot] = false;
+    }
+
+    public void CompletedOrder(int waitingSpot)
+    {
+        //Clear the customer and the order and add cash to the player.
+        currentCash += 5;
+        customersWaiting[waitingSpot] = false;
+    }
+
+    IEnumerator CustomerSpawning()
+    {
+        while (true)
+        {
+            int i = 0;
+
+            foreach (bool spot in customersWaiting)
+            {
+                if (spot)
+                {
+                    i++;
+                }
+            }
+
+            if (i == 6)
+            {
+                Debug.Log("Waiting for a new spot to be open.");
+                yield return new WaitForSeconds(3);
+            }
+            else
+            {
+                Debug.Log("New spot found, beginning spawning!");
+                yield return new WaitForSeconds(5);
+                SpawnNewCustomer();
+            }
         }
     }
 }
