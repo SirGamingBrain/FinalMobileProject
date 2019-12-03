@@ -94,7 +94,7 @@ GameObject:
   - component: {fileID: 8324608377603127061}
   m_Layer: 0
   m_Name: Volcanic Trigger
-  m_TagString: Untagged
+  m_TagString: Volcanic
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

@@ -101,6 +101,8 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //Update the interaction text.
+
         //Timer runs until the day is over, at which point we need an end screen.
         if (timerOn)
         {

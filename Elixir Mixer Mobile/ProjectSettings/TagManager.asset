@@ -5,6 +5,15 @@ TagManager:
   serializedVersion: 2
   tags:
   - Interact
+  - Blackeyed
+  - Undead
+  - Magic
+  - Volcanic
+  - Cyclops
+  - Blooming
+  - Dragon
+  - Blood
+  - Customer
   layers:
   - Default
   - TransparentFX
