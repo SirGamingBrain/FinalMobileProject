@@ -512,7 +512,7 @@ public class PlayerScript : MonoBehaviour
                 break;
         }
 
-        FindObjectOfType<GameController>().checkOrder();
+        //FindObjectOfType<GameController>().checkOrder();
 
         //Debug.Log("grabbed item of value" + i + " in the " + hand);
         return i;
