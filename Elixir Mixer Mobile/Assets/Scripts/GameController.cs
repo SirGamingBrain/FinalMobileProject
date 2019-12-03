@@ -49,6 +49,7 @@ public class GameController : MonoBehaviour
 
     bool[] customersWaiting = new bool[6] {false, false, false, false, false, false};
     public GameObject[] customers = new GameObject [5];
+    public int[] customerOrders = new int[6];
     public GameObject[] potionOrders = new GameObject[8];
     public Transform[] spawnpoint = new Transform[6];
     public Transform[] orderHolder = new Transform[6];
@@ -296,6 +297,11 @@ public class GameController : MonoBehaviour
         }
     }
 
+    public void checkOrder(int potion, string spot)
+    {
+
+    }
+
     public void StartLevel()
     {
         fadeIntro = true;
@@ -353,6 +359,7 @@ public class GameController : MonoBehaviour
         Debug.Log("Customer #" + i + ", in line " + j + " ordering potion number: " + k + ".");
         //Spawn the order and the customer in and begin timing them.
         customersWaiting[j] = true;
+        customerOrders[j] = k; 
         Instantiate(customers[i], spawnpoint[j].position, spawnpoint[j].rotation);
         Instantiate(potionOrders[k], orderHolder[j].position, orderHolder[j].rotation, orderHolder[j]);
     }

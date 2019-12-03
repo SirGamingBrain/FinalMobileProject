@@ -140,12 +140,14 @@ public class PlayerScript : MonoBehaviour
             {
 
             }
-
             else if (other.name == "bucket/Trash")
             {
 
             }
-            
+            else if (other.name == "Customer Order Zone")
+            {
+
+            }
             else
             {
                 interactName = "Ingredient";
@@ -456,7 +458,67 @@ public class PlayerScript : MonoBehaviour
        
     }
 
-  public void leftpressed()
+    int GivePotion(int hand, int item)
+    {
+        int i = 0;
+        int j = 0;
+
+        switch (item)
+        {
+            case 0:
+                Debug.Log("Empty Hand");
+                i = item;
+                break;
+            case 25:
+                i = 0;
+                j = 0;
+                break;
+            case 26:
+                i = 0;
+                j = 1;
+                break;
+            case 27:
+                i = 0;
+                j = 2;
+                break;
+            case 28:
+                i = 0;
+                j = 3;
+                break;
+            case 29:
+                i = 0;
+                j = 4;
+                break;
+            case 30:
+                i = 0;
+                j = 5;
+                break;
+            case 31:
+                i = 0;
+                j = 6;
+                break;
+            case 32:
+                i = 0;
+                j = 7;
+                break;
+            case 33:
+                i = 0;
+                j = 8;
+                break;
+            default:
+                i = 0;
+                j = 9;
+                Debug.Log("Wrong Item loser");
+                break;
+        }
+
+        FindObjectOfType<GameController>().checkOrder();
+
+        //Debug.Log("grabbed item of value" + i + " in the " + hand);
+        return i;
+    }
+
+    public void leftpressed()
     {
         Debug.Log("left button pressed");
         if (interact)
@@ -482,7 +544,9 @@ public class PlayerScript : MonoBehaviour
                 case "Ingredient":
                     Debug.Log(inventory[0]);
                     inventory[0] = grabIngredient(0, inventory[0]);
-
+                    break;
+                case "Customer Order Zone":
+                    inventory[0] = GivePotion(0, inventory[0]);
                     break;
                  default:
                     break;
@@ -516,7 +580,9 @@ public class PlayerScript : MonoBehaviour
                 case "Ingredient":
                     Debug.Log(inventory[1]);
                     inventory[1] = grabIngredient(1, inventory[1]);
-
+                    break;
+                case "Customer Order Zone":
+                    inventory[1] = GivePotion(1, inventory[1]);
                     break;
                 default:
                     break;
