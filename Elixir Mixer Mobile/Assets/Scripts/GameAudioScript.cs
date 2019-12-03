@@ -48,6 +48,56 @@ public class GameAudioScript : MonoBehaviour
         }
     }
 
+    public void FadeOut()
+    {
+        foreach (Sound s in sounds)
+        {
+            if (s.source.isPlaying)
+            {
+                StartCoroutine(FadingOut(s.source, 1f, 0f));
+            }
+        }
+    }
+
+    public static IEnumerator FadingOut(AudioSource audioSource, float duration, float targetVolume)
+    {
+        float currentTime = 0;
+        float start = audioSource.volume;
+
+        while (currentTime < duration)
+        {
+            currentTime += Time.deltaTime;
+            audioSource.volume = Mathf.Lerp(start, targetVolume, currentTime / duration);
+            yield return null;
+        }
+        yield break;
+    }
+
+    public void FadeIn()
+    {
+        foreach (Sound s in sounds)
+        {
+            if (s.source.isPlaying)
+            {
+                StartCoroutine(FadingIn(s.source, 1f, 1f));
+            }
+        }
+    }
+
+    public static IEnumerator FadingIn(AudioSource audioSource, float duration, float targetVolume)
+    {
+        float currentTime = 0;
+        float start = audioSource.volume;
+
+        while (currentTime < duration)
+        {
+            currentTime += Time.deltaTime;
+            audioSource.volume = Mathf.Lerp(start, targetVolume, currentTime / duration);
+            yield return null;
+        }
+        yield break;
+    }
+
     public void Play(string name, AudioSource source)
     {
         Sound s = Array.Find(sounds, sound => sound.name == name);

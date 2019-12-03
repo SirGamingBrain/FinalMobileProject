@@ -10,6 +10,9 @@ public class MainMenuScript : MonoBehaviour
     GameObject mainPage;
     GameObject settingsPage;
     GameObject levelPage;
+    GameObject fade;
+
+    public CanvasGroup fadeAlpha;
 
     Button day1;
     Button day2;
@@ -25,6 +28,8 @@ public class MainMenuScript : MonoBehaviour
     TextMeshProUGUI volumeText;
 
     Slider master;
+
+    bool fadeIn = false;
 
     private void Awake()
     {
@@ -48,6 +53,11 @@ public class MainMenuScript : MonoBehaviour
         {
             PlayerPrefs.SetInt("Days Beaten", 0);
         }
+
+        if (!PlayerPrefs.HasKey("From Level"))
+        {
+            PlayerPrefs.SetInt("From Level", 0);
+        }
     }
 
     // Start is called before the first frame update
@@ -57,6 +67,7 @@ public class MainMenuScript : MonoBehaviour
         mainPage = GameObject.Find("Main Panel");
         settingsPage = GameObject.Find("Settings");
         levelPage = GameObject.Find("Level Select");
+        fade = GameObject.Find("Fade");
 
         day1 = GameObject.Find("Day 1").GetComponent<Button>();
         day2 = GameObject.Find("Day 2").GetComponent<Button>();
@@ -184,16 +195,57 @@ public class MainMenuScript : MonoBehaviour
 
         //Handle Anything Else Here.
 
-        //Then hide everything that needs to be hidden.
-        mainPage.SetActive(true);
-        settingsPage.SetActive(false);
-        levelPage.SetActive(false);
+        //Then hide everything that needs to be hidden depending on the transition.
+
+        if (PlayerPrefs.GetInt("From Level") == 1)
+        {
+            mainPage.SetActive(false);
+            settingsPage.SetActive(false);
+            levelPage.SetActive(true);
+            fade.SetActive(true);
+            fadeIn = true;
+            FindObjectOfType<AudioScript>().FadeIn();
+        }
+        else
+        {
+            mainPage.SetActive(true);
+            settingsPage.SetActive(false);
+            levelPage.SetActive(false);
+            fadeAlpha.alpha = 0f;
+            fade.SetActive(false);
+            fadeIn = false;
+        }
+        
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if (fadeIn && fade.activeInHierarchy)
+        {
+            if (fadeAlpha.alpha > 0f)
+            {
+                fadeAlpha.alpha -= Time.deltaTime;
+            }
+            else
+            {
+                fadeAlpha.alpha = 0f;
+                fade.SetActive(false);
+            }
+        }
+        else if (fadeIn == false && fade.activeInHierarchy)
+        {
+            if (fadeAlpha.alpha < 1f)
+            {
+                fadeAlpha.alpha += Time.deltaTime;
+            }
+            else
+            {
+                fadeAlpha.alpha = 1f;
+                PlayerPrefs.Save();
+                SceneManager.LoadScene("Chas UI");
+            }
+        }
     }
 
     public void Settings()
@@ -216,15 +268,13 @@ public class MainMenuScript : MonoBehaviour
         Application.Quit();
     }
 
-    public void Tutorial()
-    {
-        //Load the Tutorial
-    }
-
     public void LevelLoad(Button button)
     {
         //Load the Passed Level
         PlayerPrefs.SetString("Day Number", button.GetComponentInChildren<TextMeshProUGUI>().text);
+        FindObjectOfType<AudioScript>().FadeOut();
+        fade.SetActive(true);
+        fadeIn = false;
     }
 
     public void VolumeSlider(Slider slider)

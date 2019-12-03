@@ -15,26 +15,45 @@ public class GameController : MonoBehaviour
     GameObject undeadCrate;
     GameObject blackeyedCrate;
     GameObject magicCrate;
+    GameObject fade;
+
+    GameObject introPanel;
+    GameObject victoryPanel;
+    GameObject failurePanel;
+    GameObject guideBook;
+
+    public CanvasGroup fadeAlpha;
+    public CanvasGroup introAlpha;
 
     Transform timerHand;
 
     TextMeshProUGUI timerText;
+    TextMeshProUGUI introText;
+    TextMeshProUGUI dayText;
+    TextMeshProUGUI endText;
+    TextMeshProUGUI stats;
 
     float levelTimer = 300;
 
     int currentCash = 0;
     int minimumCash = 50;
+    int totalProfit = 0;
     int maxPotionIndex = 8;
+    int ordersFinished = 0;
 
     bool timerOn = false;
     bool dayFinished = false;
+    bool fadeIn = false;
+    bool fadeIntro = false;
+    bool failed = false;
 
     bool[] customersWaiting = new bool[6] {false, false, false, false, false, false};
     public GameObject[] customers = new GameObject [5];
     public GameObject[] potionOrders = new GameObject[8];
     public Transform[] spawnpoint = new Transform[6];
     public Transform[] orderHolder = new Transform[6];
-    //public Transform[] waitingPoint = new Transform[5];
+
+    AudioSource notifications;
 
     // Start is called before the first frame update
     void Start()
@@ -49,6 +68,12 @@ public class GameController : MonoBehaviour
         blackeyedCrate = GameObject.Find("Blackeyed Gold Crate");
         magicCrate = GameObject.Find("Magic Mushrooms Crate");
 
+        fade = GameObject.Find("Fade");
+        introPanel = GameObject.Find("Intro Holder");
+
+        introText = GameObject.Find("Intro Text").GetComponent<TextMeshProUGUI>();
+        dayText = GameObject.Find("Shop Day").GetComponent<TextMeshProUGUI>();
+
         timerHand = GameObject.Find("Clock Hand").GetComponent<Transform>();
         timerText = GameObject.Find("Timer Text").GetComponent<TextMeshProUGUI>();
 
@@ -61,47 +86,99 @@ public class GameController : MonoBehaviour
                 magicCrate.SetActive(false);
                 maxPotionIndex = 2;
                 minimumCash = 50;
+                introText.text = "Good luck on your first day apprentice! If you need a moment to go over the recipes, feel free to do so now! Otherwise once you tap on the button on screen, the day will begin!";
                 break;
             case "Day 2":
                 blackeyedCrate.SetActive(false);
                 magicCrate.SetActive(false);
                 maxPotionIndex = 4;
                 minimumCash = 60;
+                introText.text = "Heads up, we got two new potions recipes ready for you to start crafting today! When you're ready, go ahead and tap on the button to open up shop!";
                 break;
             case "Day 3":
                 magicCrate.SetActive(false);
                 maxPotionIndex = 5;
                 minimumCash = 70;
+                introText.text = "Another new potion has come in today, this time it's with an ingredient not even I have touched. Good luck working with and completing more orders today so we can eat!";
                 break;
             case "Day 4":
                 magicCrate.SetActive(false);
                 maxPotionIndex = 6;
                 minimumCash = 80;
+                introText.text = "So I figured out there was a Stamina Potion we could make, but apparently word got out and now they want some of it. Do your best out there today!";
                 break;
             case "Day 5":
                 magicCrate.SetActive(false);
                 maxPotionIndex = 7;
                 minimumCash = 90;
+                introText.text = "Customers have figured out that we've been holding back on all the potions we could make, so it's time we dish them out to them. We've got a new Perception Potion now, so it's time to reveal to the customers their true eyes!";
                 break;
             case "Day 6":
                 maxPotionIndex = 8;
                 minimumCash = 100;
+                introText.text = "Final day of your first work week my boy, and your this close to tasting huge success. Were breaking out all the stops for this day today, so have fun making the Revive Potion for rabid customers out there.";
                 break;
             default:
                 break;
         }
 
+        dayText.text = PlayerPrefs.GetString("Day Number");
         Debug.Log("Day Number " + PlayerPrefs.GetString("Day Number"));
 
-        //Once the intro is complete, the day will begin.
-        timerOn = true;
-        StartCoroutine(CustomerSpawning());
+        //Fade in and begin the intro.
+        //Once the intro is complete, the timer and the level for that day will begin.
+        fadeIn = true;
+        fade.SetActive(true);
+        introPanel.SetActive(true);
+        fadeAlpha.alpha = 1f;
     }
 
     // Update is called once per frame
     void Update()
     {
-        //Update the interaction text.
+        //Fade in and out the scene.
+        if (fadeIn && fade.activeInHierarchy)
+        {
+            if (fadeAlpha.alpha > 0f)
+            {
+                fadeAlpha.alpha -= Time.deltaTime;
+            }
+            else
+            {
+                fadeAlpha.alpha = 0f;
+                fade.SetActive(false);
+            }
+        }
+        else if (fadeIn == false && fade.activeInHierarchy)
+        {
+            if (fadeAlpha.alpha < 1f)
+            {
+                fadeAlpha.alpha += Time.deltaTime;
+            }
+            else
+            {
+                fadeAlpha.alpha = 1f;
+                PlayerPrefs.Save();
+                SceneManager.LoadScene("Chas UI");
+            }
+        }
+
+        //Fade out the intro panel.
+        if (fadeIntro && introPanel.activeInHierarchy)
+        {
+            if (introAlpha.alpha > 0f)
+            {
+                introAlpha.alpha -= Time.deltaTime;
+            }
+            else
+            {
+                introAlpha.alpha = 0f;
+                introPanel.SetActive(false);
+                timerOn = true;
+                StartCoroutine(CustomerSpawning());
+                //Can also play a starting sound here.
+            }
+        }
 
         //Timer runs until the day is over, at which point we need an end screen.
         if (timerOn)
@@ -195,14 +272,53 @@ public class GameController : MonoBehaviour
                 dayFinished = true;
                 timerHand.eulerAngles = new Vector3(0, 0, 0f);
                 timerOn = false;
+                //Play an ending sound here.
+                FindObjectOfType<GameAudioScript>().Play("Day End", notifications);
+                //Check to see if the player succeeded or failed.
+                if (currentCash < minimumCash)
+                {
+                    failed = true;
+                }
             }
         }
 
-        if (dayFinished)
+        if (dayFinished && !failed)
         {
             //Call a function to display the finishing stats to the player.
-            //This will provide the player with knowing if they met the goal or not, and access to letting them retry if they failed.
+            //This will provide the player with a victory screen!
+            //Finally they will have 3 options: Go to the next level, go back to the level select, or save & quit.
         }
+        else
+        {
+            //Call a function to display the finishing stats to the player.
+            //This will provide the player with a victory screen!
+            //Finally they will have 3 options: Go to the next level, go back to the level select, or save & quit.
+        }
+    }
+
+    public void StartLevel()
+    {
+        fadeIntro = true;
+    }
+
+    public void loadLevelSelect()
+    {
+
+    }
+
+    public void nextDay()
+    {
+
+    }
+    public void tryAgain()
+    {
+
+    }
+
+    public void saveAndExit()
+    {
+        PlayerPrefs.Save();
+        Application.Quit();
     }
 
     void SpawnNewCustomer()
@@ -251,6 +367,7 @@ public class GameController : MonoBehaviour
     {
         //Clear the customer and the order and add cash to the player.
         currentCash += 5;
+        ordersFinished += 1;
         customersWaiting[waitingSpot] = false;
     }
 
