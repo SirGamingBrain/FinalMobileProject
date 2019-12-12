@@ -7,7 +7,7 @@ using TMPro;
 public class OrderTimer : MonoBehaviour
 {
     TextMeshProUGUI timer;
-    float actualTime = 60f;
+    float actualTime = 90f;
     float minutes = 0f;
     float seconds = 0f;
 
@@ -77,5 +77,10 @@ public class OrderTimer : MonoBehaviour
             Destroy(this.gameObject);
         }
         
+    }
+
+    public void destroyTime()
+    {
+        Destroy(this.gameObject);
     }
 }

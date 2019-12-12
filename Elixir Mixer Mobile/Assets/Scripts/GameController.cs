@@ -48,11 +48,13 @@ public class GameController : MonoBehaviour
     bool failed = false;
 
     bool[] customersWaiting = new bool[6] {false, false, false, false, false, false};
-    public GameObject[] customers = new GameObject [5];
-    public int[] customerOrders = new int[6];
-    public GameObject[] potionOrders = new GameObject[8];
-    public Transform[] spawnpoint = new Transform[6];
-    public Transform[] orderHolder = new Transform[6];
+    public GameObject[] customers = new GameObject [5]; //A gameobjects holder for the template of customers.
+    GameObject[] currentCustomers = new GameObject[6]; //A list of customers currently out.
+    public GameObject[] orderZones = new GameObject[6]; //The zones where the player turns in the order.
+    public int[] customerOrders = new int[6]; //The spot that checks to see if you turned in the correct order for the customer.
+    public GameObject[] potionOrders = new GameObject[8]; //A gameobjects holder for the template of orders.
+    public Transform[] spawnpoint = new Transform[6]; //The spawnpoints for the customers.
+    public Transform[] orderHolder = new Transform[6]; //The UI that holds the orders to display to the player.
 
     AudioSource notifications;
 
@@ -85,37 +87,37 @@ public class GameController : MonoBehaviour
                 undeadCrate.SetActive(false);
                 blackeyedCrate.SetActive(false);
                 magicCrate.SetActive(false);
-                maxPotionIndex = 2;
+                maxPotionIndex = 3;
                 minimumCash = 50;
                 introText.text = "Good luck on your first day apprentice! If you need a moment to go over the recipes, feel free to do so now! Otherwise once you tap on the button on screen, the day will begin!";
                 break;
             case "Day 2":
                 blackeyedCrate.SetActive(false);
                 magicCrate.SetActive(false);
-                maxPotionIndex = 4;
+                maxPotionIndex = 5;
                 minimumCash = 60;
                 introText.text = "Heads up, we got two new potions recipes ready for you to start crafting today! When you're ready, go ahead and tap on the button to open up shop!";
                 break;
             case "Day 3":
                 magicCrate.SetActive(false);
-                maxPotionIndex = 5;
+                maxPotionIndex = 6;
                 minimumCash = 70;
                 introText.text = "Another new potion has come in today, this time it's with an ingredient not even I have touched. Good luck working with and completing more orders today so we can eat!";
                 break;
             case "Day 4":
                 magicCrate.SetActive(false);
-                maxPotionIndex = 6;
+                maxPotionIndex = 7;
                 minimumCash = 80;
                 introText.text = "So I figured out there was a Stamina Potion we could make, but apparently word got out and now they want some of it. Do your best out there today!";
                 break;
             case "Day 5":
                 magicCrate.SetActive(false);
-                maxPotionIndex = 7;
+                maxPotionIndex = 8;
                 minimumCash = 90;
                 introText.text = "Customers have figured out that we've been holding back on all the potions we could make, so it's time we dish them out to them. We've got a new Perception Potion now, so it's time to reveal to the customers their true eyes!";
                 break;
             case "Day 6":
-                maxPotionIndex = 8;
+                maxPotionIndex = 9;
                 minimumCash = 100;
                 introText.text = "Final day of your first work week my boy, and your this close to tasting huge success. Were breaking out all the stops for this day today, so have fun making the Revive Potion for rabid customers out there.";
                 break;
@@ -273,12 +275,17 @@ public class GameController : MonoBehaviour
                 dayFinished = true;
                 timerHand.eulerAngles = new Vector3(0, 0, 0f);
                 timerOn = false;
-                //Play an ending sound here.
-                FindObjectOfType<GameAudioScript>().Play("Day End", notifications);
+                //Play an ending sound here based on if they won or lost.
                 //Check to see if the player succeeded or failed.
                 if (currentCash < minimumCash)
                 {
                     failed = true;
+                    FindObjectOfType<GameAudioScript>().Play("Day Fail", notifications);
+                }
+                else
+                {
+                    failed = false;
+                    FindObjectOfType<GameAudioScript>().Play("Day Win", notifications);
                 }
             }
         }
@@ -297,9 +304,78 @@ public class GameController : MonoBehaviour
         }
     }
 
-    public void checkOrder(int potion, string spot)
+    public void checkOrder(int potion, GameObject customerArea)
     {
-
+        if (customerArea == orderZones[0])
+        {
+            if (potion == customerOrders[0])
+            {
+                CompletedOrder(0);
+            }
+            else
+            {
+                FailedOrder(0);
+            }
+        }
+        else if (customerArea == orderZones[1])
+        {
+            if (potion == customerOrders[1])
+            {
+                CompletedOrder(1);
+            }
+            else
+            {
+                FailedOrder(1);
+            }
+        }
+        else if (customerArea == orderZones[2])
+        {
+            if (potion == customerOrders[2])
+            {
+                CompletedOrder(2);
+            }
+            else
+            {
+                FailedOrder(2);
+            }
+        }
+        else if (customerArea == orderZones[3])
+        {
+            if (potion == customerOrders[3])
+            {
+                CompletedOrder(3);
+            }
+            else
+            {
+                FailedOrder(3);
+            }
+        }
+        else if (customerArea == orderZones[4])
+        {
+            if (potion == customerOrders[4])
+            {
+                CompletedOrder(4);
+            }
+            else
+            {
+                FailedOrder(4);
+            }
+        }
+        else if (customerArea == orderZones[5])
+        {
+            if (potion == customerOrders[5])
+            {
+                CompletedOrder(5);
+            }
+            else
+            {
+                FailedOrder(5);
+            }
+        }
+        else
+        {
+            Debug.Log("Not sure how we ended up here, but we did.");
+        }
     }
 
     public void StartLevel()
@@ -307,21 +383,22 @@ public class GameController : MonoBehaviour
         fadeIntro = true;
     }
 
-    public void loadLevelSelect()
+    public void loadLevelSelect() //Button that loads the level select.
     {
 
     }
 
-    public void nextDay()
-    {
-
-    }
-    public void tryAgain()
+    public void nextDay() //Button to go to the next day.
     {
 
     }
 
-    public void saveAndExit()
+    public void tryAgain() //Button to reset the current level.
+    {
+
+    }
+
+    public void saveAndExit() //Button that saves and closes the day.
     {
         PlayerPrefs.Save();
         Application.Quit();
@@ -329,7 +406,7 @@ public class GameController : MonoBehaviour
 
     void SpawnNewCustomer()
     {
-        int i = Random.Range(0, 4); //Choose a random customer prefab.
+        int i = Random.Range(0, 5); //Choose a random customer prefab.
         int j = Random.Range(0, 5); //Choose a random waiting spot.
         int k = Random.Range(0, maxPotionIndex); //Choose a random order based on the day.
 
@@ -360,21 +437,27 @@ public class GameController : MonoBehaviour
         //Spawn the order and the customer in and begin timing them.
         customersWaiting[j] = true;
         customerOrders[j] = k; 
-        Instantiate(customers[i], spawnpoint[j].position, spawnpoint[j].rotation);
+        currentCustomers[j] = Instantiate(customers[i], spawnpoint[j].position, spawnpoint[j].rotation);
         Instantiate(potionOrders[k], orderHolder[j].position, orderHolder[j].rotation, orderHolder[j]);
     }
 
     public void FailedOrder(int waitingSpot)
     {
+        Debug.Log("Failed an order!");
         //Clear the customer and the order and don't give the player anything.
+        currentCustomers[waitingSpot].GetComponent<CustomerStatus>().destroyTime();
+        orderHolder[waitingSpot].GetComponentInChildren<OrderTimer>().destroyTime();
         customersWaiting[waitingSpot] = false;
     }
 
     public void CompletedOrder(int waitingSpot)
     {
+        Debug.Log("Completed an order and earned some cash!");
         //Clear the customer and the order and add cash to the player.
         currentCash += 5;
         ordersFinished += 1;
+        currentCustomers[waitingSpot].GetComponent<CustomerStatus>().destroyTime();
+        orderHolder[waitingSpot].GetComponentInChildren<OrderTimer>().destroyTime();
         customersWaiting[waitingSpot] = false;
     }
 

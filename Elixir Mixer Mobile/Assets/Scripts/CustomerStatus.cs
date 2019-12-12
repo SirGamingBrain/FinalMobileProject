@@ -50,4 +50,9 @@ public class CustomerStatus : MonoBehaviour
             Destroy(this.gameObject);
         }
     }
+
+    public void destroyTime()
+    {
+        Destroy(this.gameObject);
+    }
 }

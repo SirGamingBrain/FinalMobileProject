@@ -1499,7 +1499,7 @@ Transform:
   m_GameObject: {fileID: 1771843729296379567}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 5.3440638, y: 0.00000011920929, z: -12.975419}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_Children:
   - {fileID: 1766467645609773685}
   - {fileID: 1766466464848367877}
@@ -1537,6 +1537,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43544b0d7c4e3414ca40679165f1cc6c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  orderComplete: 0
 --- !u!82 &-8859258441092112893
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1558,7 +1559,7 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 5
+  MaxDistance: 15
   Pan2D: 0
   rolloffMode: 0
   BypassEffects: 0

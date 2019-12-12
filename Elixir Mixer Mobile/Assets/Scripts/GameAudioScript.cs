@@ -25,7 +25,7 @@ public class GameAudioScript : MonoBehaviour
 
     public void Start()
     {
-        float i = UnityEngine.Random.Range(0, 1);
+        float i = UnityEngine.Random.Range(0, 2);
 
         if (i == 1)
         {
