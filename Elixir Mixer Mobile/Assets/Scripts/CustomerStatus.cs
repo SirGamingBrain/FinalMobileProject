@@ -5,7 +5,7 @@ using UnityEngine;
 public class CustomerStatus : MonoBehaviour
 {
     AudioSource human;
-    float timer = 60;
+    float timer = 90f;
 
     public bool orderComplete;
 

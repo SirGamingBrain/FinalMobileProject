@@ -52,9 +52,12 @@ public class GameAudioScript : MonoBehaviour
     {
         foreach (Sound s in sounds)
         {
-            if (s.source.isPlaying)
+            if (s.source != null)
             {
-                StartCoroutine(FadingOut(s.source, 1f, 0f));
+                if (s.source.isPlaying)
+                {
+                    StartCoroutine(FadingOut(s.source, 1f, 0f));
+                }
             }
         }
     }
@@ -77,7 +80,7 @@ public class GameAudioScript : MonoBehaviour
     {
         foreach (Sound s in sounds)
         {
-            if (s.source.isPlaying)
+            if (s.source.isPlaying && s.source != null)
             {
                 StartCoroutine(FadingIn(s.source, 1f, 1f));
             }
@@ -116,5 +119,18 @@ public class GameAudioScript : MonoBehaviour
         s.source.loop = s.loop;
         s.source.volume = s.volume * (PlayerPrefs.GetFloat("Master Volume") * .01f);
         s.source.Play();
+    }
+
+    public void Stop(string name)
+    {
+        Sound s = Array.Find(sounds, sound => sound.name == name);
+
+        if (s == null)
+        {
+            Debug.LogWarning("No sound found of name: " + name);
+            return;
+        }
+
+        s.source.Stop();
     }
 }

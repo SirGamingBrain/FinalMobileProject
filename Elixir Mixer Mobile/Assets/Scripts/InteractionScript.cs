@@ -24,60 +24,64 @@ public class InteractionScript : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        Debug.Log("I'm entering a trigger HERE.");
+        //Debug.Log("I'm entering a trigger HERE.");
 
-        if (other.tag == "Blood")
+        if (other.name == "Blood Trigger")
         {
             interaction.text = "Grab Blood Rose";
         }
-        else if (other.CompareTag("Dragon"))
+        else if (other.name == "Dragon Trigger")
         {
             interaction.text = "Grab Dragon Horn";
         }
-        else if (other.CompareTag("Blooming"))
+        else if (other.name == "Blooming Trigger")
         {
             interaction.text = "Grab Blooming Moon";
         }
-        else if (other.CompareTag("Cyclops"))
+        else if (other.name == "Cyclops Trigger")
         {
             interaction.text = "Grab Cyclops Eye";
         }
-        else if (other.CompareTag("Volcanic"))
+        else if (other.name == "Volcanic Trigger")
         {
             interaction.text = "Grab Volcanic Ore";
         }
-        else if (other.tag == ("Undead"))
+        else if (other.name == "Undead Trigger")
         {
             interaction.text = "Grab Undead Soul";
         }
-        else if (other.CompareTag("Blackeyed"))
+        else if (other.name == "Blackeyed Trigger")
         {
             interaction.text = "Grab Blackeyed Gold";
         }
-        else if (other.CompareTag("Magic"))
+        else if (other.name == "Magic Trigger")
         {
             interaction.text = "Grab Magic Mushroom";
         }
 
         if (other.name == "Furnace")
         {
-            interaction.text = "Bake/Grab Ingredient";
+            interaction.text = "Bake Item";
         }
         else if (other.name == "Basket")
         {
-            interaction.text = "Grind/Grab Ingredient";
+            interaction.text = "Grind Item";
         }
         else if (other.name == "Cauldron")
         {
-            interaction.text = "Make/Grab Potion";
+            interaction.text = "Use Cauldron";
         }
         else if (other.name == "Cutting Board")
         {
-            interaction.text = "Extract/Grab Ingredient";
+            interaction.text = "Extract Item";
         }
         else if (other.name == "bucket/Trash")
         {
-            interaction.text = "Toss Inventory";
+            interaction.text = "Toss Item";
+        }
+        else if (other.tag == "Customer Order Zone")
+        {
+            interaction.text = "Turn in Item";
         }
     }
 

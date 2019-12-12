@@ -20,7 +20,9 @@ public class GameController : MonoBehaviour
     GameObject introPanel;
     GameObject victoryPanel;
     GameObject failurePanel;
-    GameObject guideBook;
+    GameObject settingsPage;
+
+    //GameObject guideBook //This will be done at a later date.
 
     public CanvasGroup fadeAlpha;
     public CanvasGroup introAlpha;
@@ -29,15 +31,16 @@ public class GameController : MonoBehaviour
 
     TextMeshProUGUI timerText;
     TextMeshProUGUI introText;
-    TextMeshProUGUI dayText;
-    TextMeshProUGUI endText;
-    TextMeshProUGUI stats;
+    TextMeshProUGUI volumeText;
+    TextMeshProUGUI dayText; //This is for the intro to tell you what day you are on.
+    TextMeshProUGUI winText; //Win stats.
+    TextMeshProUGUI failText; //Fail stats.
 
     float levelTimer = 300;
 
     int currentCash = 0;
     int minimumCash = 50;
-    int totalProfit = 0;
+    int ordersMissed = 0;
     int maxPotionIndex = 8;
     int ordersFinished = 0;
 
@@ -46,6 +49,19 @@ public class GameController : MonoBehaviour
     bool fadeIn = false;
     bool fadeIntro = false;
     bool failed = false;
+    bool backToLevelSelect = false;
+    bool nextLevel = false;
+    bool reloadLevel = false;
+
+    Toggle low;
+    Toggle medium;
+    Toggle high;
+
+    Slider master;
+
+    AudioSource alerts;
+    public AudioSource clicks;
+    public AudioSource orders;
 
     bool[] customersWaiting = new bool[6] {false, false, false, false, false, false};
     public GameObject[] customers = new GameObject [5]; //A gameobjects holder for the template of customers.
@@ -55,8 +71,6 @@ public class GameController : MonoBehaviour
     public GameObject[] potionOrders = new GameObject[8]; //A gameobjects holder for the template of orders.
     public Transform[] spawnpoint = new Transform[6]; //The spawnpoints for the customers.
     public Transform[] orderHolder = new Transform[6]; //The UI that holds the orders to display to the player.
-
-    AudioSource notifications;
 
     // Start is called before the first frame update
     void Start()
@@ -74,11 +88,29 @@ public class GameController : MonoBehaviour
         fade = GameObject.Find("Fade");
         introPanel = GameObject.Find("Intro Holder");
 
+        settingsPage = GameObject.Find("Settings");
+
+        low = GameObject.Find("Low Quality Toggle").GetComponent<Toggle>();
+        medium = GameObject.Find("Medium Quality Toggle").GetComponent<Toggle>();
+        high = GameObject.Find("High Quality Toggle").GetComponent<Toggle>();
+
+        master = GameObject.Find("Volume Slider").GetComponent<Slider>();
+        volumeText = GameObject.Find("Volume Value").GetComponent<TextMeshProUGUI>();
+
         introText = GameObject.Find("Intro Text").GetComponent<TextMeshProUGUI>();
         dayText = GameObject.Find("Shop Day").GetComponent<TextMeshProUGUI>();
 
         timerHand = GameObject.Find("Clock Hand").GetComponent<Transform>();
         timerText = GameObject.Find("Timer Text").GetComponent<TextMeshProUGUI>();
+
+        winText = GameObject.Find("Win Stats").GetComponent<TextMeshProUGUI>();
+
+        failText = GameObject.Find("Fail Stats").GetComponent<TextMeshProUGUI>();
+
+        victoryPanel = GameObject.Find("Victory Screen");
+        failurePanel = GameObject.Find("Failure Screen");
+
+        alerts = this.GetComponent<AudioSource>();
 
         //Based on the day selected, need to hide certain objects, introduce new features, and explain any other changes.
         switch (PlayerPrefs.GetString("Day Number"))
@@ -88,51 +120,75 @@ public class GameController : MonoBehaviour
                 blackeyedCrate.SetActive(false);
                 magicCrate.SetActive(false);
                 maxPotionIndex = 3;
-                minimumCash = 50;
+                minimumCash = 10;
                 introText.text = "Good luck on your first day apprentice! If you need a moment to go over the recipes, feel free to do so now! Otherwise once you tap on the button on screen, the day will begin!";
                 break;
             case "Day 2":
                 blackeyedCrate.SetActive(false);
                 magicCrate.SetActive(false);
                 maxPotionIndex = 5;
-                minimumCash = 60;
+                minimumCash = 20;
                 introText.text = "Heads up, we got two new potions recipes ready for you to start crafting today! When you're ready, go ahead and tap on the button to open up shop!";
                 break;
             case "Day 3":
                 magicCrate.SetActive(false);
                 maxPotionIndex = 6;
-                minimumCash = 70;
+                minimumCash = 30;
                 introText.text = "Another new potion has come in today, this time it's with an ingredient not even I have touched. Good luck working with and completing more orders today so we can eat!";
                 break;
             case "Day 4":
                 magicCrate.SetActive(false);
                 maxPotionIndex = 7;
-                minimumCash = 80;
+                minimumCash = 40;
                 introText.text = "So I figured out there was a Stamina Potion we could make, but apparently word got out and now they want some of it. Do your best out there today!";
                 break;
             case "Day 5":
                 magicCrate.SetActive(false);
                 maxPotionIndex = 8;
-                minimumCash = 90;
+                minimumCash = 50;
                 introText.text = "Customers have figured out that we've been holding back on all the potions we could make, so it's time we dish them out to them. We've got a new Perception Potion now, so it's time to reveal to the customers their true eyes!";
                 break;
             case "Day 6":
                 maxPotionIndex = 9;
-                minimumCash = 100;
+                minimumCash = 60;
                 introText.text = "Final day of your first work week my boy, and your this close to tasting huge success. Were breaking out all the stops for this day today, so have fun making the Revive Potion for rabid customers out there.";
                 break;
             default:
                 break;
         }
 
+        switch (PlayerPrefs.GetInt("Quality"))
+        {
+            case 0:
+                low.isOn = true;
+                break;
+            case 1:
+                medium.isOn = true;
+                break;
+            case 2:
+                high.isOn = true;
+                break;
+            default:
+                high.isOn = true;
+                break;
+        }
+
+        master.value = PlayerPrefs.GetFloat("Master Volume");
+        volumeText.text = PlayerPrefs.GetFloat("Master Volume").ToString();
+
         dayText.text = PlayerPrefs.GetString("Day Number");
         Debug.Log("Day Number " + PlayerPrefs.GetString("Day Number"));
+
+        victoryPanel.SetActive(false);
+        failurePanel.SetActive(false);
 
         //Fade in and begin the intro.
         //Once the intro is complete, the timer and the level for that day will begin.
         fadeIn = true;
         fade.SetActive(true);
+        settingsPage.SetActive(false);
         introPanel.SetActive(true);
+        FindObjectOfType<GameAudioScript>().FadeIn();
         fadeAlpha.alpha = 1f;
     }
 
@@ -160,9 +216,58 @@ public class GameController : MonoBehaviour
             }
             else
             {
+                if (backToLevelSelect)
+                {
+                    PlayerPrefs.SetInt("From Level", 1);
+                }
+                else if (nextLevel)
+                {
+                    switch (PlayerPrefs.GetString("Day Number"))
+                    {
+                        case "Day 1":
+                            PlayerPrefs.SetInt("Days Beaten", 1);
+                            PlayerPrefs.SetString("Day Number", "Day 2");
+                            break;
+                        case "Day 2":
+                            PlayerPrefs.SetInt("Days Beaten", 2);
+                            PlayerPrefs.SetString("Day Number", "Day 3");
+                            break;
+                        case "Day 3":
+                            PlayerPrefs.SetInt("Days Beaten", 3);
+                            PlayerPrefs.SetString("Day Number", "Day 4");
+                            break;
+                        case "Day 4":
+                            PlayerPrefs.SetInt("Days Beaten", 4);
+                            PlayerPrefs.SetString("Day Number", "Day 5");
+                            break;
+                        case "Day 5":
+                            PlayerPrefs.SetInt("Days Beaten", 5);
+                            PlayerPrefs.SetString("Day Number", "Day 6");
+                            break;
+                        case "Day 6":
+                            PlayerPrefs.SetInt("Days Beaten", 5);
+                            PlayerPrefs.SetString("Day Number", "Day 6");
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
                 fadeAlpha.alpha = 1f;
                 PlayerPrefs.Save();
-                SceneManager.LoadScene("Chas UI");
+
+                if (backToLevelSelect)
+                {
+                    SceneManager.LoadScene("Main Menu");
+                }
+                else if (nextLevel)
+                {
+                    SceneManager.LoadScene("Level 1");
+                }
+                else if (reloadLevel)
+                {
+                    SceneManager.LoadScene("Level 1");
+                }
             }
         }
 
@@ -179,6 +284,7 @@ public class GameController : MonoBehaviour
                 introPanel.SetActive(false);
                 timerOn = true;
                 StartCoroutine(CustomerSpawning());
+                FindObjectOfType<GameAudioScript>().Play("Level Start", alerts);
                 //Can also play a starting sound here.
             }
         }
@@ -275,17 +381,19 @@ public class GameController : MonoBehaviour
                 dayFinished = true;
                 timerHand.eulerAngles = new Vector3(0, 0, 0f);
                 timerOn = false;
+                StopAllCoroutines();
+                DeleteAllOrders();
                 //Play an ending sound here based on if they won or lost.
                 //Check to see if the player succeeded or failed.
                 if (currentCash < minimumCash)
                 {
                     failed = true;
-                    FindObjectOfType<GameAudioScript>().Play("Day Fail", notifications);
+                    FindObjectOfType<GameAudioScript>().Play("Day Fail", alerts);
                 }
                 else
                 {
                     failed = false;
-                    FindObjectOfType<GameAudioScript>().Play("Day Win", notifications);
+                    FindObjectOfType<GameAudioScript>().Play("Day Win", alerts);
                 }
             }
         }
@@ -293,15 +401,66 @@ public class GameController : MonoBehaviour
         if (dayFinished && !failed)
         {
             //Call a function to display the finishing stats to the player.
+            victoryPanel.SetActive(true);
+            winText.text = ((currentCash - minimumCash) + "$\n" + ordersFinished);
+            FindObjectOfType<GameAudioScript>().Stop("Track 1");
+            FindObjectOfType<GameAudioScript>().Stop("Track 2");
             //This will provide the player with a victory screen!
             //Finally they will have 3 options: Go to the next level, go back to the level select, or save & quit.
         }
-        else
+        else if (dayFinished && failed)
         {
             //Call a function to display the finishing stats to the player.
-            //This will provide the player with a victory screen!
-            //Finally they will have 3 options: Go to the next level, go back to the level select, or save & quit.
+            failurePanel.SetActive(true);
+            failText.text = ((minimumCash - currentCash) + "$\n" + ordersFinished);
+            FindObjectOfType<GameAudioScript>().Stop("Track 1");
+            FindObjectOfType<GameAudioScript>().Stop("Track 2");
+            //This will provide the player with a failure screen!
+            //Finally they will have 3 options: Retry this level, go back to the level select, or save & quit.
         }
+    }
+
+    public void Settings()
+    {
+        Time.timeScale = 0;
+        settingsPage.SetActive(true);
+    }
+
+    public void VolumeSlider(Slider slider)
+    {
+        PlayerPrefs.SetFloat("Master Volume", slider.value);
+        volumeText.text = slider.value.ToString();
+        FindObjectOfType<GameAudioScript>().VolumeChange();
+    }
+
+    public void ToggleHigh()
+    {
+        PlayerPrefs.SetInt("Quality", 2);
+        QualitySettings.SetQualityLevel(PlayerPrefs.GetInt("Quality"), true);
+    }
+
+    public void ToggleMedium()
+    {
+        PlayerPrefs.SetInt("Quality", 1);
+        QualitySettings.SetQualityLevel(PlayerPrefs.GetInt("Quality"), true);
+    }
+
+    public void ToggleLow()
+    {
+        PlayerPrefs.SetInt("Quality", 0);
+        QualitySettings.SetQualityLevel(PlayerPrefs.GetInt("Quality"), true);
+    }
+
+    public void SaveAndBack()
+    {
+        PlayerPrefs.Save();
+        settingsPage.SetActive(false);
+        Time.timeScale = 1;
+    }
+
+    public void OnTouch()
+    {
+        FindObjectOfType<GameAudioScript>().Play("Click", clicks);
     }
 
     public void checkOrder(int potion, GameObject customerArea)
@@ -385,17 +544,35 @@ public class GameController : MonoBehaviour
 
     public void loadLevelSelect() //Button that loads the level select.
     {
+        FindObjectOfType<GameAudioScript>().FadeOut();
+        backToLevelSelect = true;
+        fade.SetActive(true);
+        fadeIn = false;
+    }
 
+    public void backtoMainMenu()
+    {
+        FindObjectOfType<GameAudioScript>().FadeOut();
+        backToLevelSelect = true;
+        fade.SetActive(true);
+        fadeIn = false;
+        Time.timeScale = 1;
     }
 
     public void nextDay() //Button to go to the next day.
     {
-
+        FindObjectOfType<GameAudioScript>().FadeOut();
+        nextLevel = true;
+        fade.SetActive(true);
+        fadeIn = false;
     }
 
     public void tryAgain() //Button to reset the current level.
     {
-
+        FindObjectOfType<GameAudioScript>().FadeOut();
+        reloadLevel = true;
+        fade.SetActive(true);
+        fadeIn = false;
     }
 
     public void saveAndExit() //Button that saves and closes the day.
@@ -444,7 +621,9 @@ public class GameController : MonoBehaviour
     public void FailedOrder(int waitingSpot)
     {
         Debug.Log("Failed an order!");
+        FindObjectOfType<GameAudioScript>().Play("Failed Order", orders);
         //Clear the customer and the order and don't give the player anything.
+        ordersMissed += 1;
         currentCustomers[waitingSpot].GetComponent<CustomerStatus>().destroyTime();
         orderHolder[waitingSpot].GetComponentInChildren<OrderTimer>().destroyTime();
         customersWaiting[waitingSpot] = false;
@@ -453,12 +632,31 @@ public class GameController : MonoBehaviour
     public void CompletedOrder(int waitingSpot)
     {
         Debug.Log("Completed an order and earned some cash!");
+        FindObjectOfType<GameAudioScript>().Play("Completed Order", orders);
         //Clear the customer and the order and add cash to the player.
         currentCash += 5;
         ordersFinished += 1;
         currentCustomers[waitingSpot].GetComponent<CustomerStatus>().destroyTime();
         orderHolder[waitingSpot].GetComponentInChildren<OrderTimer>().destroyTime();
         customersWaiting[waitingSpot] = false;
+    }
+
+    public void DeleteAllOrders()
+    {
+        for (int i = 0; i < 6; i++)
+        {
+            if (currentCustomers[i] != null)
+            {
+                currentCustomers[i].GetComponent<CustomerStatus>().destroyTime();
+            }
+
+            if (orderHolder[i].transform.childCount > 0)
+            {
+                orderHolder[i].GetComponentInChildren<OrderTimer>().destroyTime();
+            }
+            
+            customersWaiting[i] = false;
+        }
     }
 
     IEnumerator CustomerSpawning()

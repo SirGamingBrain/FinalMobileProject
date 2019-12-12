@@ -215,7 +215,8 @@ public class MainMenuScript : MonoBehaviour
             fade.SetActive(false);
             fadeIn = false;
         }
-        
+
+        PlayerPrefs.SetInt("From Level", 0);
     }
 
     // Update is called once per frame
@@ -243,7 +244,7 @@ public class MainMenuScript : MonoBehaviour
             {
                 fadeAlpha.alpha = 1f;
                 PlayerPrefs.Save();
-                SceneManager.LoadScene("Chas UI");
+                SceneManager.LoadScene("Level 1");
             }
         }
     }

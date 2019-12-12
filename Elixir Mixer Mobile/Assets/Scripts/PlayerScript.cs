@@ -48,10 +48,13 @@ public class PlayerScript : MonoBehaviour
 
     GameObject currentInteraction;
 
+    AudioSource alerts;
+
 
     // Start is called before the first frame update
     void Start()
     {
+        alerts = GameObject.Find("Script Holder").GetComponent<AudioSource>();
         joystick = FindObjectOfType<Joystick>();
         rig = this.GetComponent<Rigidbody>();
     }
@@ -464,6 +467,12 @@ public class PlayerScript : MonoBehaviour
                 Debug.Log("Invalid Item");
                 break;
         }
+
+        if (i != item)
+        {
+            FindObjectOfType<GameAudioScript>().Play("New Ingredient", alerts);
+        }
+
         Debug.Log("grabbed item of value" + i + " in the " + hand);
         return i;
     }
@@ -508,6 +517,12 @@ public class PlayerScript : MonoBehaviour
                 Debug.Log("Invalid Item");
                 break;
         }
+
+        if (i != item)
+        {
+            FindObjectOfType<GameAudioScript>().Play("New Ingredient", alerts);
+        }
+
         Debug.Log("grabbed item of value" + i + " in the " + hand);
         return i;
 
@@ -546,6 +561,12 @@ public class PlayerScript : MonoBehaviour
                 Debug.Log("Invalid Item");
                 break;
         }
+
+        if (i != item)
+        {
+            FindObjectOfType<GameAudioScript>().Play("New Ingredient", alerts);
+        }
+
         Debug.Log("grabbed item of value" + i + " in the " + hand);
         return i;
 
@@ -575,14 +596,15 @@ public class PlayerScript : MonoBehaviour
                         {
                             Debug.Log("Health Potion");
                             playerAnimator.SetTrigger("Taking");
+                            FindObjectOfType<GameAudioScript>().Play("New Ingredient", alerts);
                             CauldronInventory.Clear();
                             return 25;
                         }
-
                         else if (CauldronInventory.Contains(10) && CauldronInventory.Contains(17))
                         {
                             Debug.Log("Mana Potion");
                             playerAnimator.SetTrigger("Taking");
+                            FindObjectOfType<GameAudioScript>().Play("New Ingredient", alerts);
                             CauldronInventory.Clear();
                             return 26;
                         }
@@ -590,6 +612,7 @@ public class PlayerScript : MonoBehaviour
                         {
                             Debug.Log("Strength Potion");
                             playerAnimator.SetTrigger("Taking");
+                            FindObjectOfType<GameAudioScript>().Play("New Ingredient", alerts);
                             CauldronInventory.Clear();
                             return 27;
                         }
@@ -597,6 +620,7 @@ public class PlayerScript : MonoBehaviour
                         {
                             Debug.Log("Jumping Potion");
                             playerAnimator.SetTrigger("Taking");
+                            FindObjectOfType<GameAudioScript>().Play("New Ingredient", alerts);
                             CauldronInventory.Clear();
                             return 28;
                         }
@@ -604,6 +628,7 @@ public class PlayerScript : MonoBehaviour
                         {
                             Debug.Log("Poision Potion");
                             playerAnimator.SetTrigger("Taking");
+                            FindObjectOfType<GameAudioScript>().Play("New Ingredient", alerts);
                             CauldronInventory.Clear();
                             return 29;
                         }
@@ -611,13 +636,14 @@ public class PlayerScript : MonoBehaviour
                         {
                             Debug.Log("Speed Potion");
                             playerAnimator.SetTrigger("Taking");
+                            FindObjectOfType<GameAudioScript>().Play("New Ingredient", alerts);
                             CauldronInventory.Clear();
                             return 30;
                         }
-
                         else
                         {
-                            Debug.Log("Nope");
+                            CauldronInventory.Clear();
+                            Debug.Log("No valid ingredient combination.");
                         }
                         break;
                     case 3:
@@ -625,6 +651,7 @@ public class PlayerScript : MonoBehaviour
                         {
                             Debug.Log("Stamina Potion");
                             playerAnimator.SetTrigger("Taking");
+                            FindObjectOfType<GameAudioScript>().Play("New Ingredient", alerts);
                             CauldronInventory.Clear();
                             return 31;
                         }
@@ -632,12 +659,13 @@ public class PlayerScript : MonoBehaviour
                         {
                             Debug.Log("Perception Potion");
                             playerAnimator.SetTrigger("Taking");
+                            FindObjectOfType<GameAudioScript>().Play("New Ingredient", alerts);
                             CauldronInventory.Clear();
                             return 32;
                         }
-                       
                         else
                         {
+                            CauldronInventory.Clear();
                             Debug.Log("Nope");
                         }
                         break;
@@ -646,11 +674,13 @@ public class PlayerScript : MonoBehaviour
                         {
                             Debug.Log("Revive Potion");
                             playerAnimator.SetTrigger("Taking");
+                            FindObjectOfType<GameAudioScript>().Play("New Ingredient", alerts);
                             CauldronInventory.Clear();
                             return 33;
                         }
                         else
                         {
+                            CauldronInventory.Clear();
                             Debug.Log("Nope");
                         }
                         break;
@@ -727,6 +757,7 @@ public class PlayerScript : MonoBehaviour
         else
         {
             CauldronInventory.Add(i);
+            FindObjectOfType<GameAudioScript>().Play("New Ingredient", alerts);
             playerAnimator.SetTrigger("Giving");
             return 0;
         }
@@ -916,6 +947,7 @@ public class PlayerScript : MonoBehaviour
             }
             Debug.Log("Grabbed item of value" + i + " in the " + hand + " hand value.");
             playerAnimator.SetTrigger("Taking");
+            FindObjectOfType<GameAudioScript>().Play("Pickup", alerts);
             return i;
         }
         Debug.Log("Hand has item" + item + " in it");
