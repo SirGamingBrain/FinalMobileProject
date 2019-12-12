@@ -63,6 +63,7 @@ public class MainMenuScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        PlayerPrefs.SetInt("Days Beaten", 5);
         //Find all of our menu variables and set them.
         mainPage = GameObject.Find("Main Panel");
         settingsPage = GameObject.Find("Settings");
